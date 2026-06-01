@@ -5,12 +5,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using EmceesProdTesting5.Core;
+using EmceesProdTesting5.Exceptions;
 
 namespace EmceesProdTesting5.Models.Users;
 
 /// <summary>
-/// This can only be done by the logged in user.
+/// Creates a new user. The data required can be submitted as a JSON body or as a
+/// list of parameters. The user will be given a random password, which they can reset
+/// using the "forgot password" function.
 ///
 /// <para>NOTE: Do not inherit from this type outside the SDK unless you're okay with
 /// breaking changes in non-major versions. We may add new methods in the future that
@@ -24,30 +28,28 @@ public record class UserCreateParams : ParamsBase
         get { return this._rawBodyData.Freeze(); }
     }
 
-    public long? ID
+    /// <summary>
+    /// The new users email address.
+    /// </summary>
+    public required string Email
     {
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableStruct<long>("id");
+            return this._rawBodyData.GetNotNullClass<string>("email");
         }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("id", value);
-        }
+        init { this._rawBodyData.Set("email", value); }
     }
 
-    public string? Email
+    /// <summary>
+    /// Boolean to indicate if the user is blocked.
+    /// </summary>
+    public bool? Blocked
     {
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("email");
+            return this._rawBodyData.GetNullableStruct<bool>("blocked");
         }
         init
         {
@@ -56,109 +58,42 @@ public record class UserCreateParams : ParamsBase
                 return;
             }
 
-            this._rawBodyData.Set("email", value);
-        }
-    }
-
-    public string? FirstName
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("firstName");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("firstName", value);
-        }
-    }
-
-    public string? LastName
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("lastName");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("lastName", value);
-        }
-    }
-
-    public string? Password
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("password");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("password", value);
-        }
-    }
-
-    public string? Phone
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("phone");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("phone", value);
-        }
-    }
-
-    public string? Username
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("username");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("username", value);
+            this._rawBodyData.Set("blocked", value);
         }
     }
 
     /// <summary>
-    /// User Status
+    /// If you say the user must be blocked, this will be the reason code.
     /// </summary>
-    public int? UserStatus
+    public ApiEnum<string, BlockedCode>? BlockedCode
     {
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableStruct<int>("userStatus");
+            return this._rawBodyData.GetNullableClass<ApiEnum<string, BlockedCode>>("blocked_code");
+        }
+        init { this._rawBodyData.Set("blocked_code", value); }
+    }
+
+    /// <summary>
+    /// Role for the user. Can be empty or omitted.
+    /// </summary>
+    public ApiEnum<string, Role>? Role
+    {
+        get
+        {
+            this._rawBodyData.Freeze();
+            return this._rawBodyData.GetNullableClass<ApiEnum<string, Role>>("role");
+        }
+        init { this._rawBodyData.Set("role", value); }
+    }
+
+    public string? XTraceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("X-Trace-Id");
         }
         init
         {
@@ -167,7 +102,7 @@ public record class UserCreateParams : ParamsBase
                 return;
             }
 
-            this._rawBodyData.Set("userStatus", value);
+            this._rawHeaderData.Set("X-Trace-Id", value);
         }
     }
 
@@ -251,7 +186,7 @@ public record class UserCreateParams : ParamsBase
 
     public override Uri Url(ClientOptions options)
     {
-        return new UriBuilder(options.BaseUrl.ToString().TrimEnd('/') + "/user")
+        return new UriBuilder(options.BaseUrl.ToString().TrimEnd('/') + "/v1/users")
         {
             Query = this.QueryString(options),
         }.Uri;
@@ -269,6 +204,7 @@ public record class UserCreateParams : ParamsBase
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);
+        request.Headers.Add("Accept", "application/vnd.api+json");
         foreach (var item in this.RawHeaderData)
         {
             ParamsBase.AddHeaderElementToRequest(request, item.Key, item.Value);
@@ -278,5 +214,92 @@ public record class UserCreateParams : ParamsBase
     public override int GetHashCode()
     {
         return 0;
+    }
+}
+
+/// <summary>
+/// If you say the user must be blocked, this will be the reason code.
+/// </summary>
+[JsonConverter(typeof(BlockedCodeConverter))]
+public enum BlockedCode
+{
+    EmailChanged,
+}
+
+sealed class BlockedCodeConverter : JsonConverter<BlockedCode>
+{
+    public override BlockedCode Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
+    {
+        return JsonSerializer.Deserialize<string>(ref reader, options) switch
+        {
+            "email_changed" => BlockedCode.EmailChanged,
+            _ => (BlockedCode)(-1),
+        };
+    }
+
+    public override void Write(
+        Utf8JsonWriter writer,
+        BlockedCode value,
+        JsonSerializerOptions options
+    )
+    {
+        JsonSerializer.Serialize(
+            writer,
+            value switch
+            {
+                BlockedCode.EmailChanged => "email_changed",
+                _ => throw new EmceesProdTesting5InvalidDataException(
+                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
+                ),
+            },
+            options
+        );
+    }
+}
+
+/// <summary>
+/// Role for the user. Can be empty or omitted.
+/// </summary>
+[JsonConverter(typeof(RoleConverter))]
+public enum Role
+{
+    Owner,
+    Demo,
+}
+
+sealed class RoleConverter : JsonConverter<Role>
+{
+    public override Role Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
+    {
+        return JsonSerializer.Deserialize<string>(ref reader, options) switch
+        {
+            "owner" => Role.Owner,
+            "demo" => Role.Demo,
+            _ => (Role)(-1),
+        };
+    }
+
+    public override void Write(Utf8JsonWriter writer, Role value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(
+            writer,
+            value switch
+            {
+                Role.Owner => "owner",
+                Role.Demo => "demo",
+                _ => throw new EmceesProdTesting5InvalidDataException(
+                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
+                ),
+            },
+            options
+        );
     }
 }

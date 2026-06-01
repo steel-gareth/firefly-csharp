@@ -1,8 +1,22 @@
 using System.Text.Json;
 using EmceesProdTesting5.Exceptions;
-using EmceesProdTesting5.Models;
-using Orders = EmceesProdTesting5.Models.Store.Orders;
-using Pets = EmceesProdTesting5.Models.Pets;
+using EmceesProdTesting5.Models.Accounts;
+using EmceesProdTesting5.Models.Attachments;
+using EmceesProdTesting5.Models.Bills;
+using EmceesProdTesting5.Models.Budgets;
+using EmceesProdTesting5.Models.Chart.Account;
+using EmceesProdTesting5.Models.Configuration;
+using EmceesProdTesting5.Models.Currencies;
+using EmceesProdTesting5.Models.Data;
+using EmceesProdTesting5.Models.Data.Export;
+using EmceesProdTesting5.Models.Recurrences;
+using EmceesProdTesting5.Models.Rules;
+using EmceesProdTesting5.Models.Search;
+using EmceesProdTesting5.Models.Transactions;
+using EmceesProdTesting5.Models.UserGroups;
+using EmceesProdTesting5.Models.Webhooks;
+using Balance = EmceesProdTesting5.Models.Chart.Balance;
+using Users = EmceesProdTesting5.Models.Users;
 
 namespace EmceesProdTesting5.Core;
 
@@ -23,12 +37,46 @@ public abstract record class ModelBase
         Converters =
         {
             new FrozenDictionaryConverterFactory(),
-            new ApiEnumConverter<string, Status>(),
-            new ApiEnumConverter<string, Pets::PetStatus>(),
-            new ApiEnumConverter<string, Pets::Status>(),
-            new ApiEnumConverter<string, Pets::PetUpdateParamsStatus>(),
-            new ApiEnumConverter<string, Pets::PetFindByStatusParamsStatus>(),
-            new ApiEnumConverter<string, Orders::Status>(),
+            new ApiEnumConverter<string, ChartDataSetPeriod>(),
+            new ApiEnumConverter<string, Period>(),
+            new ApiEnumConverter<string, Preselected>(),
+            new ApiEnumConverter<string, Balance::Period>(),
+            new ApiEnumConverter<string, Balance::Preselected>(),
+            new ApiEnumConverter<string, Objects>(),
+            new ApiEnumConverter<string, ExportFileFilter>(),
+            new ApiEnumConverter<string, AccountRoleProperty>(),
+            new ApiEnumConverter<string, AccountTypeFilter>(),
+            new ApiEnumConverter<string, CreditCardTypeProperty>(),
+            new ApiEnumConverter<string, InterestPeriodProperty>(),
+            new ApiEnumConverter<string, LiabilityDirectionProperty>(),
+            new ApiEnumConverter<string, LiabilityTypeProperty>(),
+            new ApiEnumConverter<string, ShortAccountTypeProperty>(),
+            new ApiEnumConverter<string, TransactionTypeFilter>(),
+            new ApiEnumConverter<string, AttachableType>(),
+            new ApiEnumConverter<string, BillRepeatFrequency>(),
+            new ApiEnumConverter<string, AutoBudgetPeriod>(),
+            new ApiEnumConverter<string, AutoBudgetType>(),
+            new ApiEnumConverter<string, AccountTypeProperty>(),
+            new ApiEnumConverter<string, RecurrenceRepetitionType>(),
+            new ApiEnumConverter<string, RecurrenceTransactionType>(),
+            new ApiEnumConverter<string, RuleActionKeyword>(),
+            new ApiEnumConverter<string, RuleTriggerKeyword>(),
+            new ApiEnumConverter<string, RuleTriggerType>(),
+            new ApiEnumConverter<bool, CurrencyUpdateParamsPrimary>(),
+            new ApiEnumConverter<string, TransactionTypeProperty>(),
+            new ApiEnumConverter<string, Role>(),
+            new ApiEnumConverter<string, Field>(),
+            new ApiEnumConverter<string, ConfigValueFilter>(),
+            new ApiEnumConverter<string, Name>(),
+            new ApiEnumConverter<string, Users::UserBlockedCode>(),
+            new ApiEnumConverter<string, Users::UserRole>(),
+            new ApiEnumConverter<string, Users::BlockedCode>(),
+            new ApiEnumConverter<string, Users::Role>(),
+            new ApiEnumConverter<string, Users::UserUpdateParamsBlockedCode>(),
+            new ApiEnumConverter<string, Users::UserUpdateParamsRole>(),
+            new ApiEnumConverter<string, WebhookDelivery>(),
+            new ApiEnumConverter<string, WebhookResponse>(),
+            new ApiEnumConverter<string, WebhookTrigger>(),
         },
     };
 
@@ -44,7 +92,7 @@ public abstract record class ModelBase
     ///
     /// <para>This is useful for instances constructed from raw JSON data (e.g. deserialized from an API response).</para>
     ///
-    /// <exception cref="MoreConflictingInvalidDataException">
+    /// <exception cref="EmceesProdTesting5InvalidDataException">
     /// Thrown when the instance does not pass validation.
     /// </exception>
     /// </summary>

@@ -1,39 +1,39 @@
+using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using EmceesProdTesting5.Core;
+using EmceesProdTesting5.Exceptions;
 
 namespace EmceesProdTesting5.Models.Users;
 
 [JsonConverter(typeof(JsonModelConverter<User, UserFromRaw>))]
 public sealed record class User : JsonModel
 {
-    public long? ID
+    /// <summary>
+    /// The new users email address.
+    /// </summary>
+    public required string Email
     {
         get
         {
             this._rawData.Freeze();
-            return this._rawData.GetNullableStruct<long>("id");
+            return this._rawData.GetNotNullClass<string>("email");
         }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawData.Set("id", value);
-        }
+        init { this._rawData.Set("email", value); }
     }
 
-    public string? Email
+    /// <summary>
+    /// Boolean to indicate if the user is blocked.
+    /// </summary>
+    public bool? Blocked
     {
         get
         {
             this._rawData.Freeze();
-            return this._rawData.GetNullableClass<string>("email");
+            return this._rawData.GetNullableStruct<bool>("blocked");
         }
         init
         {
@@ -42,109 +42,29 @@ public sealed record class User : JsonModel
                 return;
             }
 
-            this._rawData.Set("email", value);
-        }
-    }
-
-    public string? FirstName
-    {
-        get
-        {
-            this._rawData.Freeze();
-            return this._rawData.GetNullableClass<string>("firstName");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawData.Set("firstName", value);
-        }
-    }
-
-    public string? LastName
-    {
-        get
-        {
-            this._rawData.Freeze();
-            return this._rawData.GetNullableClass<string>("lastName");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawData.Set("lastName", value);
-        }
-    }
-
-    public string? Password
-    {
-        get
-        {
-            this._rawData.Freeze();
-            return this._rawData.GetNullableClass<string>("password");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawData.Set("password", value);
-        }
-    }
-
-    public string? Phone
-    {
-        get
-        {
-            this._rawData.Freeze();
-            return this._rawData.GetNullableClass<string>("phone");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawData.Set("phone", value);
-        }
-    }
-
-    public string? Username
-    {
-        get
-        {
-            this._rawData.Freeze();
-            return this._rawData.GetNullableClass<string>("username");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawData.Set("username", value);
+            this._rawData.Set("blocked", value);
         }
     }
 
     /// <summary>
-    /// User Status
+    /// If you say the user must be blocked, this will be the reason code.
     /// </summary>
-    public int? UserStatus
+    public ApiEnum<string, UserBlockedCode>? BlockedCode
     {
         get
         {
             this._rawData.Freeze();
-            return this._rawData.GetNullableStruct<int>("userStatus");
+            return this._rawData.GetNullableClass<ApiEnum<string, UserBlockedCode>>("blocked_code");
+        }
+        init { this._rawData.Set("blocked_code", value); }
+    }
+
+    public DateTimeOffset? CreatedAt
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableStruct<DateTimeOffset>("created_at");
         }
         init
         {
@@ -153,21 +73,50 @@ public sealed record class User : JsonModel
                 return;
             }
 
-            this._rawData.Set("userStatus", value);
+            this._rawData.Set("created_at", value);
+        }
+    }
+
+    /// <summary>
+    /// Role for the user. Can be empty or omitted.
+    /// </summary>
+    public ApiEnum<string, UserRole>? Role
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableClass<ApiEnum<string, UserRole>>("role");
+        }
+        init { this._rawData.Set("role", value); }
+    }
+
+    public DateTimeOffset? UpdatedAt
+    {
+        get
+        {
+            this._rawData.Freeze();
+            return this._rawData.GetNullableStruct<DateTimeOffset>("updated_at");
+        }
+        init
+        {
+            if (value == null)
+            {
+                return;
+            }
+
+            this._rawData.Set("updated_at", value);
         }
     }
 
     /// <inheritdoc/>
     public override void Validate()
     {
-        _ = this.ID;
         _ = this.Email;
-        _ = this.FirstName;
-        _ = this.LastName;
-        _ = this.Password;
-        _ = this.Phone;
-        _ = this.Username;
-        _ = this.UserStatus;
+        _ = this.Blocked;
+        this.BlockedCode?.Validate();
+        _ = this.CreatedAt;
+        this.Role?.Validate();
+        _ = this.UpdatedAt;
     }
 
     public User() { }
@@ -196,6 +145,13 @@ public sealed record class User : JsonModel
     {
         return new(FrozenDictionary.ToFrozenDictionary(rawData));
     }
+
+    [SetsRequiredMembers]
+    public User(string email)
+        : this()
+    {
+        this.Email = email;
+    }
 }
 
 class UserFromRaw : IFromRawJson<User>
@@ -203,4 +159,91 @@ class UserFromRaw : IFromRawJson<User>
     /// <inheritdoc/>
     public User FromRawUnchecked(IReadOnlyDictionary<string, JsonElement> rawData) =>
         User.FromRawUnchecked(rawData);
+}
+
+/// <summary>
+/// If you say the user must be blocked, this will be the reason code.
+/// </summary>
+[JsonConverter(typeof(UserBlockedCodeConverter))]
+public enum UserBlockedCode
+{
+    EmailChanged,
+}
+
+sealed class UserBlockedCodeConverter : JsonConverter<UserBlockedCode>
+{
+    public override UserBlockedCode Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
+    {
+        return JsonSerializer.Deserialize<string>(ref reader, options) switch
+        {
+            "email_changed" => UserBlockedCode.EmailChanged,
+            _ => (UserBlockedCode)(-1),
+        };
+    }
+
+    public override void Write(
+        Utf8JsonWriter writer,
+        UserBlockedCode value,
+        JsonSerializerOptions options
+    )
+    {
+        JsonSerializer.Serialize(
+            writer,
+            value switch
+            {
+                UserBlockedCode.EmailChanged => "email_changed",
+                _ => throw new EmceesProdTesting5InvalidDataException(
+                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
+                ),
+            },
+            options
+        );
+    }
+}
+
+/// <summary>
+/// Role for the user. Can be empty or omitted.
+/// </summary>
+[JsonConverter(typeof(UserRoleConverter))]
+public enum UserRole
+{
+    Owner,
+    Demo,
+}
+
+sealed class UserRoleConverter : JsonConverter<UserRole>
+{
+    public override UserRole Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
+    {
+        return JsonSerializer.Deserialize<string>(ref reader, options) switch
+        {
+            "owner" => UserRole.Owner,
+            "demo" => UserRole.Demo,
+            _ => (UserRole)(-1),
+        };
+    }
+
+    public override void Write(Utf8JsonWriter writer, UserRole value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(
+            writer,
+            value switch
+            {
+                UserRole.Owner => "owner",
+                UserRole.Demo => "demo",
+                _ => throw new EmceesProdTesting5InvalidDataException(
+                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
+                ),
+            },
+            options
+        );
+    }
 }

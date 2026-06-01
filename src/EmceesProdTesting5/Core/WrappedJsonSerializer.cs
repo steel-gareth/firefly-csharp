@@ -17,11 +17,11 @@ sealed class WrappedJsonSerializer
         {
             deserialized =
                 JsonSerializer.Deserialize<T>(element, ModelBase.SerializerOptions)
-                ?? throw new MoreConflictingInvalidDataException($"'{name}' cannot be null");
+                ?? throw new EmceesProdTesting5InvalidDataException($"'{name}' cannot be null");
         }
         catch (JsonException e)
         {
-            throw new MoreConflictingInvalidDataException(
+            throw new EmceesProdTesting5InvalidDataException(
                 $"'{name}' must be of type {typeof(T).FullName}",
                 e
             );
@@ -37,11 +37,11 @@ sealed class WrappedJsonSerializer
         {
             deserialized =
                 JsonSerializer.Deserialize<T?>(element, ModelBase.SerializerOptions)
-                ?? throw new MoreConflictingInvalidDataException($"'{name}' cannot be null");
+                ?? throw new EmceesProdTesting5InvalidDataException($"'{name}' cannot be null");
         }
         catch (JsonException e)
         {
-            throw new MoreConflictingInvalidDataException(
+            throw new EmceesProdTesting5InvalidDataException(
                 $"'{name}' must be of type {typeof(T).FullName}",
                 e
             );
@@ -59,7 +59,7 @@ sealed class WrappedJsonSerializer
         }
         catch (JsonException e)
         {
-            throw new MoreConflictingInvalidDataException(
+            throw new EmceesProdTesting5InvalidDataException(
                 $"'{name}' must be of type {typeof(T).FullName}",
                 e
             );
@@ -77,7 +77,7 @@ sealed class WrappedJsonSerializer
         }
         catch (JsonException e)
         {
-            throw new MoreConflictingInvalidDataException(
+            throw new EmceesProdTesting5InvalidDataException(
                 $"'{name}' must be of type {typeof(T).FullName}",
                 e
             );

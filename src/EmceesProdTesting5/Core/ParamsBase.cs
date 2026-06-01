@@ -30,7 +30,7 @@ public abstract record class ParamsBase
         };
 
         var customHeadersEnv = Environment.GetEnvironmentVariable(
-            "MORE_CONFLICTING_CUSTOM_HEADERS"
+            "EMCEES_PROD_TESTING_5_CUSTOM_HEADERS"
         );
         if (customHeadersEnv != null)
         {
@@ -213,9 +213,9 @@ public abstract record class ParamsBase
             request.Headers.Add(header.Key, header.Value);
         }
 
-        if (options.ApiKey != null)
+        if (options.BearerToken != null)
         {
-            request.Headers.Add("api_key", options.ApiKey);
+            request.Headers.Add("Authorization", string.Format("Bearer {0}", options.BearerToken));
         }
         request.Headers.Add(
             "X-Stainless-Timeout",
@@ -224,7 +224,7 @@ public abstract record class ParamsBase
     }
 
     static string GetUserAgent() =>
-        $"{typeof(MoreConflictingClient).Name}/C# {GetPackageVersion()}";
+        $"{typeof(EmceesProdTesting5Client).Name}/C# {GetPackageVersion()}";
 
     static string GetPackageVersion() =>
         Assembly

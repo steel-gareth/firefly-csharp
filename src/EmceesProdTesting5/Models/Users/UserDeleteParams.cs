@@ -9,7 +9,8 @@ using EmceesProdTesting5.Core;
 namespace EmceesProdTesting5.Models.Users;
 
 /// <summary>
-/// This can only be done by the logged in user.
+/// Delete a user. You cannot delete the user you're authenticated with. This cannot
+/// be undone. Be careful.
 ///
 /// <para>NOTE: Do not inherit from this type outside the SDK unless you're okay with
 /// breaking changes in non-major versions. We may add new methods in the future that
@@ -17,7 +18,25 @@ namespace EmceesProdTesting5.Models.Users;
 /// </summary>
 public record class UserDeleteParams : ParamsBase
 {
-    public string? Username { get; init; }
+    public string? ID { get; init; }
+
+    public string? XTraceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("X-Trace-Id");
+        }
+        init
+        {
+            if (value == null)
+            {
+                return;
+            }
+
+            this._rawHeaderData.Set("X-Trace-Id", value);
+        }
+    }
 
     public UserDeleteParams() { }
 
@@ -26,7 +45,7 @@ public record class UserDeleteParams : ParamsBase
     public UserDeleteParams(UserDeleteParams userDeleteParams)
         : base(userDeleteParams)
     {
-        this.Username = userDeleteParams.Username;
+        this.ID = userDeleteParams.ID;
     }
 #pragma warning restore CS8618
 
@@ -44,12 +63,12 @@ public record class UserDeleteParams : ParamsBase
     UserDeleteParams(
         FrozenDictionary<string, JsonElement> rawHeaderData,
         FrozenDictionary<string, JsonElement> rawQueryData,
-        string username
+        string id
     )
     {
         this._rawHeaderData = new(rawHeaderData);
         this._rawQueryData = new(rawQueryData);
-        this.Username = username;
+        this.ID = id;
     }
 #pragma warning restore CS8618
 
@@ -57,13 +76,13 @@ public record class UserDeleteParams : ParamsBase
     public static UserDeleteParams FromRawUnchecked(
         IReadOnlyDictionary<string, JsonElement> rawHeaderData,
         IReadOnlyDictionary<string, JsonElement> rawQueryData,
-        string username
+        string id
     )
     {
         return new(
             FrozenDictionary.ToFrozenDictionary(rawHeaderData),
             FrozenDictionary.ToFrozenDictionary(rawQueryData),
-            username
+            id
         );
     }
 
@@ -72,7 +91,7 @@ public record class UserDeleteParams : ParamsBase
             FriendlyJsonPrinter.PrintValue(
                 new Dictionary<string, JsonElement>()
                 {
-                    ["Username"] = JsonSerializer.SerializeToElement(this.Username),
+                    ["ID"] = JsonSerializer.SerializeToElement(this.ID),
                     ["HeaderData"] = FriendlyJsonPrinter.PrintValue(
                         JsonSerializer.SerializeToElement(this._rawHeaderData.Freeze())
                     ),
@@ -90,7 +109,7 @@ public record class UserDeleteParams : ParamsBase
         {
             return false;
         }
-        return (this.Username?.Equals(other.Username) ?? other.Username == null)
+        return (this.ID?.Equals(other.ID) ?? other.ID == null)
             && this._rawHeaderData.Equals(other._rawHeaderData)
             && this._rawQueryData.Equals(other._rawQueryData);
     }
@@ -98,7 +117,7 @@ public record class UserDeleteParams : ParamsBase
     public override Uri Url(ClientOptions options)
     {
         return new UriBuilder(
-            options.BaseUrl.ToString().TrimEnd('/') + string.Format("/user/{0}", this.Username)
+            options.BaseUrl.ToString().TrimEnd('/') + string.Format("/v1/users/{0}", this.ID)
         )
         {
             Query = this.QueryString(options),

@@ -1,6 +1,5 @@
 using System;
 using System.Net.Http;
-using EmceesProdTesting5.Exceptions;
 
 namespace EmceesProdTesting5.Core;
 
@@ -33,13 +32,21 @@ public record struct ClientOptions()
         };
 
     Lazy<string> _baseUrl = new(() =>
-        Environment.GetEnvironmentVariable("MORE_CONFLICTING_BASE_URL") ?? EnvironmentUrl.Production
+        Environment.GetEnvironmentVariable("EMCEES_PROD_TESTING_5_BASE_URL")
+        ?? EnvironmentUrl.Production
     );
 
     /// <summary>
     /// The base URL to use for every request.
     ///
     /// <para>Defaults to the production environment: <see cref="EnvironmentUrl.Production"/></para>
+    ///
+    /// <para>
+    /// The following other environments are available:
+    /// <list type="bullet">
+    ///   <item>environment_1: <see cref="EnvironmentUrl.Environment1"/></item>
+    /// </list>
+    /// </para>
     /// </summary>
     public string BaseUrl
     {
@@ -55,7 +62,7 @@ public record struct ClientOptions()
     ///
     /// <para>Note that when set to true, the response body is only validated if the response is
     /// deserialized. Methods that don't eagerly deserialize the response, such as those on
-    /// <see cref="IMoreConflictingClient.WithRawResponse"/>, don't perform validation until deserialization
+    /// <see cref="IEmceesProdTesting5Client.WithRawResponse"/>, don't perform validation until deserialization
     /// is triggered.</para>
     /// </summary>
     public bool ResponseValidation { get; set; } = false;
@@ -91,16 +98,19 @@ public record struct ClientOptions()
     /// </summary>
     public TimeSpan? Timeout { get; set; } = null;
 
-    Lazy<string> _apiKey = new(() =>
-        Environment.GetEnvironmentVariable("PETSTORE_API_KEY")
-        ?? throw new MoreConflictingInvalidDataException(
-            string.Format("{0} cannot be null", nameof(ApiKey)),
-            new ArgumentNullException(nameof(ApiKey))
-        )
+    /// <summary>
+    /// Optional Bearer token flow
+    /// </summary>
+    Lazy<string?> _bearerToken = new(() =>
+        Environment.GetEnvironmentVariable("EMCEES_PROD_TESTING_5_BEARER_TOKEN")
     );
-    public string ApiKey
+
+    /// <summary>
+    /// Optional Bearer token flow
+    /// </summary>
+    public string? BearerToken
     {
-        readonly get { return _apiKey.Value; }
-        set { _apiKey = new(() => value); }
+        readonly get { return _bearerToken.Value; }
+        set { _bearerToken = new(() => value); }
     }
 }

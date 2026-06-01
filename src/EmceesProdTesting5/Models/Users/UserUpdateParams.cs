@@ -5,12 +5,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using EmceesProdTesting5.Core;
+using EmceesProdTesting5.Exceptions;
 
 namespace EmceesProdTesting5.Models.Users;
 
 /// <summary>
-/// This can only be done by the logged in user.
+/// Update existing user.
 ///
 /// <para>NOTE: Do not inherit from this type outside the SDK unless you're okay with
 /// breaking changes in non-major versions. We may add new methods in the future that
@@ -24,32 +26,30 @@ public record class UserUpdateParams : ParamsBase
         get { return this._rawBodyData.Freeze(); }
     }
 
-    public string? ExistingUsername { get; init; }
+    public string? ID { get; init; }
 
-    public long? ID
+    /// <summary>
+    /// The new users email address.
+    /// </summary>
+    public required string Email
     {
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableStruct<long>("id");
+            return this._rawBodyData.GetNotNullClass<string>("email");
         }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("id", value);
-        }
+        init { this._rawBodyData.Set("email", value); }
     }
 
-    public string? Email
+    /// <summary>
+    /// Boolean to indicate if the user is blocked.
+    /// </summary>
+    public bool? Blocked
     {
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("email");
+            return this._rawBodyData.GetNullableStruct<bool>("blocked");
         }
         init
         {
@@ -58,109 +58,46 @@ public record class UserUpdateParams : ParamsBase
                 return;
             }
 
-            this._rawBodyData.Set("email", value);
-        }
-    }
-
-    public string? FirstName
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("firstName");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("firstName", value);
-        }
-    }
-
-    public string? LastName
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("lastName");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("lastName", value);
-        }
-    }
-
-    public string? Password
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("password");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("password", value);
-        }
-    }
-
-    public string? Phone
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("phone");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("phone", value);
-        }
-    }
-
-    public string? Username
-    {
-        get
-        {
-            this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableClass<string>("username");
-        }
-        init
-        {
-            if (value == null)
-            {
-                return;
-            }
-
-            this._rawBodyData.Set("username", value);
+            this._rawBodyData.Set("blocked", value);
         }
     }
 
     /// <summary>
-    /// User Status
+    /// If you say the user must be blocked, this will be the reason code.
     /// </summary>
-    public int? UserStatus
+    public ApiEnum<string, UserUpdateParamsBlockedCode>? BlockedCode
     {
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNullableStruct<int>("userStatus");
+            return this._rawBodyData.GetNullableClass<ApiEnum<string, UserUpdateParamsBlockedCode>>(
+                "blocked_code"
+            );
+        }
+        init { this._rawBodyData.Set("blocked_code", value); }
+    }
+
+    /// <summary>
+    /// Role for the user. Can be empty or omitted.
+    /// </summary>
+    public ApiEnum<string, UserUpdateParamsRole>? Role
+    {
+        get
+        {
+            this._rawBodyData.Freeze();
+            return this._rawBodyData.GetNullableClass<ApiEnum<string, UserUpdateParamsRole>>(
+                "role"
+            );
+        }
+        init { this._rawBodyData.Set("role", value); }
+    }
+
+    public string? XTraceID
+    {
+        get
+        {
+            this._rawHeaderData.Freeze();
+            return this._rawHeaderData.GetNullableClass<string>("X-Trace-Id");
         }
         init
         {
@@ -169,7 +106,7 @@ public record class UserUpdateParams : ParamsBase
                 return;
             }
 
-            this._rawBodyData.Set("userStatus", value);
+            this._rawHeaderData.Set("X-Trace-Id", value);
         }
     }
 
@@ -180,7 +117,7 @@ public record class UserUpdateParams : ParamsBase
     public UserUpdateParams(UserUpdateParams userUpdateParams)
         : base(userUpdateParams)
     {
-        this.ExistingUsername = userUpdateParams.ExistingUsername;
+        this.ID = userUpdateParams.ID;
 
         this._rawBodyData = new(userUpdateParams._rawBodyData);
     }
@@ -203,13 +140,13 @@ public record class UserUpdateParams : ParamsBase
         FrozenDictionary<string, JsonElement> rawHeaderData,
         FrozenDictionary<string, JsonElement> rawQueryData,
         FrozenDictionary<string, JsonElement> rawBodyData,
-        string existingUsername
+        string id
     )
     {
         this._rawHeaderData = new(rawHeaderData);
         this._rawQueryData = new(rawQueryData);
         this._rawBodyData = new(rawBodyData);
-        this.ExistingUsername = existingUsername;
+        this.ID = id;
     }
 #pragma warning restore CS8618
 
@@ -218,14 +155,14 @@ public record class UserUpdateParams : ParamsBase
         IReadOnlyDictionary<string, JsonElement> rawHeaderData,
         IReadOnlyDictionary<string, JsonElement> rawQueryData,
         IReadOnlyDictionary<string, JsonElement> rawBodyData,
-        string existingUsername
+        string id
     )
     {
         return new(
             FrozenDictionary.ToFrozenDictionary(rawHeaderData),
             FrozenDictionary.ToFrozenDictionary(rawQueryData),
             FrozenDictionary.ToFrozenDictionary(rawBodyData),
-            existingUsername
+            id
         );
     }
 
@@ -234,7 +171,7 @@ public record class UserUpdateParams : ParamsBase
             FriendlyJsonPrinter.PrintValue(
                 new Dictionary<string, JsonElement>()
                 {
-                    ["ExistingUsername"] = JsonSerializer.SerializeToElement(this.ExistingUsername),
+                    ["ID"] = JsonSerializer.SerializeToElement(this.ID),
                     ["HeaderData"] = FriendlyJsonPrinter.PrintValue(
                         JsonSerializer.SerializeToElement(this._rawHeaderData.Freeze())
                     ),
@@ -253,10 +190,7 @@ public record class UserUpdateParams : ParamsBase
         {
             return false;
         }
-        return (
-                this.ExistingUsername?.Equals(other.ExistingUsername)
-                ?? other.ExistingUsername == null
-            )
+        return (this.ID?.Equals(other.ID) ?? other.ID == null)
             && this._rawHeaderData.Equals(other._rawHeaderData)
             && this._rawQueryData.Equals(other._rawQueryData)
             && this._rawBodyData.Equals(other._rawBodyData);
@@ -265,8 +199,7 @@ public record class UserUpdateParams : ParamsBase
     public override Uri Url(ClientOptions options)
     {
         return new UriBuilder(
-            options.BaseUrl.ToString().TrimEnd('/')
-                + string.Format("/user/{0}", this.ExistingUsername)
+            options.BaseUrl.ToString().TrimEnd('/') + string.Format("/v1/users/{0}", this.ID)
         )
         {
             Query = this.QueryString(options),
@@ -285,6 +218,7 @@ public record class UserUpdateParams : ParamsBase
     internal override void AddHeadersToRequest(HttpRequestMessage request, ClientOptions options)
     {
         ParamsBase.AddDefaultHeaders(request, options);
+        request.Headers.Add("Accept", "application/vnd.api+json");
         foreach (var item in this.RawHeaderData)
         {
             ParamsBase.AddHeaderElementToRequest(request, item.Key, item.Value);
@@ -294,5 +228,96 @@ public record class UserUpdateParams : ParamsBase
     public override int GetHashCode()
     {
         return 0;
+    }
+}
+
+/// <summary>
+/// If you say the user must be blocked, this will be the reason code.
+/// </summary>
+[JsonConverter(typeof(UserUpdateParamsBlockedCodeConverter))]
+public enum UserUpdateParamsBlockedCode
+{
+    EmailChanged,
+}
+
+sealed class UserUpdateParamsBlockedCodeConverter : JsonConverter<UserUpdateParamsBlockedCode>
+{
+    public override UserUpdateParamsBlockedCode Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
+    {
+        return JsonSerializer.Deserialize<string>(ref reader, options) switch
+        {
+            "email_changed" => UserUpdateParamsBlockedCode.EmailChanged,
+            _ => (UserUpdateParamsBlockedCode)(-1),
+        };
+    }
+
+    public override void Write(
+        Utf8JsonWriter writer,
+        UserUpdateParamsBlockedCode value,
+        JsonSerializerOptions options
+    )
+    {
+        JsonSerializer.Serialize(
+            writer,
+            value switch
+            {
+                UserUpdateParamsBlockedCode.EmailChanged => "email_changed",
+                _ => throw new EmceesProdTesting5InvalidDataException(
+                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
+                ),
+            },
+            options
+        );
+    }
+}
+
+/// <summary>
+/// Role for the user. Can be empty or omitted.
+/// </summary>
+[JsonConverter(typeof(UserUpdateParamsRoleConverter))]
+public enum UserUpdateParamsRole
+{
+    Owner,
+    Demo,
+}
+
+sealed class UserUpdateParamsRoleConverter : JsonConverter<UserUpdateParamsRole>
+{
+    public override UserUpdateParamsRole Read(
+        ref Utf8JsonReader reader,
+        Type typeToConvert,
+        JsonSerializerOptions options
+    )
+    {
+        return JsonSerializer.Deserialize<string>(ref reader, options) switch
+        {
+            "owner" => UserUpdateParamsRole.Owner,
+            "demo" => UserUpdateParamsRole.Demo,
+            _ => (UserUpdateParamsRole)(-1),
+        };
+    }
+
+    public override void Write(
+        Utf8JsonWriter writer,
+        UserUpdateParamsRole value,
+        JsonSerializerOptions options
+    )
+    {
+        JsonSerializer.Serialize(
+            writer,
+            value switch
+            {
+                UserUpdateParamsRole.Owner => "owner",
+                UserUpdateParamsRole.Demo => "demo",
+                _ => throw new EmceesProdTesting5InvalidDataException(
+                    string.Format("Invalid value '{0}' in {1}", value, nameof(value))
+                ),
+            },
+            options
+        );
     }
 }

@@ -7,15 +7,14 @@ namespace EmceesProdTesting5.Tests;
 
 public class TestBase
 {
-    protected IMoreConflictingClient client;
+    protected IEmceesProdTesting5Client client;
 
     public TestBase()
     {
-        client = new MoreConflictingClient()
+        client = new EmceesProdTesting5Client()
         {
             BaseUrl =
                 Environment.GetEnvironmentVariable("TEST_API_BASE_URL") ?? "http://localhost:4010",
-            ApiKey = "My API Key",
         };
     }
 
