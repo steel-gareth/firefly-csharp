@@ -2,12 +2,14 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EmceesProdTesting5.Core;
+using EmceesProdTesting5.Models.About;
 using EmceesProdTesting5.Models.Users;
 
 namespace EmceesProdTesting5.Services;
 
 /// <summary>
-/// Operations about user
+/// Use these endpoints to manage the users registered within Firefly III. You need
+/// to have the &amp;quot;owner&amp;quot; role to access these endpoints.
 ///
 /// <para>NOTE: Do not inherit from this type outside the SDK unless you're okay with
 /// breaking changes in non-major versions. We may add new methods in the future that
@@ -29,72 +31,65 @@ public interface IUserService
     IUserService WithOptions(Func<ClientOptions, ClientOptions> modifier);
 
     /// <summary>
-    /// This can only be done by the logged in user.
+    /// Creates a new user. The data required can be submitted as a JSON body or as a
+    /// list of parameters. The user will be given a random password, which they can
+    /// reset using the "forgot password" function.
     /// </summary>
-    Task<User> Create(
-        UserCreateParams? parameters = null,
+    Task<UserSingle> Create(
+        UserCreateParams parameters,
         CancellationToken cancellationToken = default
     );
 
     /// <summary>
-    /// Get user by user name
+    /// Gets all info of a single user.
     /// </summary>
-    Task<User> Retrieve(
+    Task<UserSingle> Retrieve(
         UserRetrieveParams parameters,
         CancellationToken cancellationToken = default
     );
 
     /// <inheritdoc cref="Retrieve(UserRetrieveParams, CancellationToken)"/>
-    Task<User> Retrieve(
-        string username,
+    Task<UserSingle> Retrieve(
+        string id,
         UserRetrieveParams? parameters = null,
         CancellationToken cancellationToken = default
     );
 
     /// <summary>
-    /// This can only be done by the logged in user.
+    /// Update existing user.
     /// </summary>
-    Task Update(UserUpdateParams parameters, CancellationToken cancellationToken = default);
+    Task<UserSingle> Update(
+        UserUpdateParams parameters,
+        CancellationToken cancellationToken = default
+    );
 
     /// <inheritdoc cref="Update(UserUpdateParams, CancellationToken)"/>
-    Task Update(
-        string existingUsername,
-        UserUpdateParams? parameters = null,
+    Task<UserSingle> Update(
+        string id,
+        UserUpdateParams parameters,
         CancellationToken cancellationToken = default
     );
 
     /// <summary>
-    /// This can only be done by the logged in user.
+    /// List all the users in this instance of Firefly III.
+    /// </summary>
+    Task<UserListResponse> List(
+        UserListParams? parameters = null,
+        CancellationToken cancellationToken = default
+    );
+
+    /// <summary>
+    /// Delete a user. You cannot delete the user you're authenticated with. This cannot
+    /// be undone. Be careful.
     /// </summary>
     Task Delete(UserDeleteParams parameters, CancellationToken cancellationToken = default);
 
     /// <inheritdoc cref="Delete(UserDeleteParams, CancellationToken)"/>
     Task Delete(
-        string username,
+        string id,
         UserDeleteParams? parameters = null,
         CancellationToken cancellationToken = default
     );
-
-    /// <summary>
-    /// Creates list of users with given input array
-    /// </summary>
-    Task<User> CreateWithList(
-        UserCreateWithListParams? parameters = null,
-        CancellationToken cancellationToken = default
-    );
-
-    /// <summary>
-    /// Logs user into the system
-    /// </summary>
-    Task<string> Login(
-        UserLoginParams? parameters = null,
-        CancellationToken cancellationToken = default
-    );
-
-    /// <summary>
-    /// Logs out current logged in user session
-    /// </summary>
-    Task Logout(UserLogoutParams? parameters = null, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -111,48 +106,57 @@ public interface IUserServiceWithRawResponse
     IUserServiceWithRawResponse WithOptions(Func<ClientOptions, ClientOptions> modifier);
 
     /// <summary>
-    /// Returns a raw HTTP response for <c>post /user</c>, but is otherwise the
-    /// same as <see cref="IUserService.Create(UserCreateParams?, CancellationToken)"/>.
+    /// Returns a raw HTTP response for <c>post /v1/users</c>, but is otherwise the
+    /// same as <see cref="IUserService.Create(UserCreateParams, CancellationToken)"/>.
     /// </summary>
-    Task<HttpResponse<User>> Create(
-        UserCreateParams? parameters = null,
+    Task<HttpResponse<UserSingle>> Create(
+        UserCreateParams parameters,
         CancellationToken cancellationToken = default
     );
 
     /// <summary>
-    /// Returns a raw HTTP response for <c>get /user/{username}</c>, but is otherwise the
+    /// Returns a raw HTTP response for <c>get /v1/users/{id}</c>, but is otherwise the
     /// same as <see cref="IUserService.Retrieve(UserRetrieveParams, CancellationToken)"/>.
     /// </summary>
-    Task<HttpResponse<User>> Retrieve(
+    Task<HttpResponse<UserSingle>> Retrieve(
         UserRetrieveParams parameters,
         CancellationToken cancellationToken = default
     );
 
     /// <inheritdoc cref="Retrieve(UserRetrieveParams, CancellationToken)"/>
-    Task<HttpResponse<User>> Retrieve(
-        string username,
+    Task<HttpResponse<UserSingle>> Retrieve(
+        string id,
         UserRetrieveParams? parameters = null,
         CancellationToken cancellationToken = default
     );
 
     /// <summary>
-    /// Returns a raw HTTP response for <c>put /user/{username}</c>, but is otherwise the
+    /// Returns a raw HTTP response for <c>put /v1/users/{id}</c>, but is otherwise the
     /// same as <see cref="IUserService.Update(UserUpdateParams, CancellationToken)"/>.
     /// </summary>
-    Task<HttpResponse> Update(
+    Task<HttpResponse<UserSingle>> Update(
         UserUpdateParams parameters,
         CancellationToken cancellationToken = default
     );
 
     /// <inheritdoc cref="Update(UserUpdateParams, CancellationToken)"/>
-    Task<HttpResponse> Update(
-        string existingUsername,
-        UserUpdateParams? parameters = null,
+    Task<HttpResponse<UserSingle>> Update(
+        string id,
+        UserUpdateParams parameters,
         CancellationToken cancellationToken = default
     );
 
     /// <summary>
-    /// Returns a raw HTTP response for <c>delete /user/{username}</c>, but is otherwise the
+    /// Returns a raw HTTP response for <c>get /v1/users</c>, but is otherwise the
+    /// same as <see cref="IUserService.List(UserListParams?, CancellationToken)"/>.
+    /// </summary>
+    Task<HttpResponse<UserListResponse>> List(
+        UserListParams? parameters = null,
+        CancellationToken cancellationToken = default
+    );
+
+    /// <summary>
+    /// Returns a raw HTTP response for <c>delete /v1/users/{id}</c>, but is otherwise the
     /// same as <see cref="IUserService.Delete(UserDeleteParams, CancellationToken)"/>.
     /// </summary>
     Task<HttpResponse> Delete(
@@ -162,35 +166,8 @@ public interface IUserServiceWithRawResponse
 
     /// <inheritdoc cref="Delete(UserDeleteParams, CancellationToken)"/>
     Task<HttpResponse> Delete(
-        string username,
+        string id,
         UserDeleteParams? parameters = null,
-        CancellationToken cancellationToken = default
-    );
-
-    /// <summary>
-    /// Returns a raw HTTP response for <c>post /user/createWithList</c>, but is otherwise the
-    /// same as <see cref="IUserService.CreateWithList(UserCreateWithListParams?, CancellationToken)"/>.
-    /// </summary>
-    Task<HttpResponse<User>> CreateWithList(
-        UserCreateWithListParams? parameters = null,
-        CancellationToken cancellationToken = default
-    );
-
-    /// <summary>
-    /// Returns a raw HTTP response for <c>get /user/login</c>, but is otherwise the
-    /// same as <see cref="IUserService.Login(UserLoginParams?, CancellationToken)"/>.
-    /// </summary>
-    Task<HttpResponse<string>> Login(
-        UserLoginParams? parameters = null,
-        CancellationToken cancellationToken = default
-    );
-
-    /// <summary>
-    /// Returns a raw HTTP response for <c>get /user/logout</c>, but is otherwise the
-    /// same as <see cref="IUserService.Logout(UserLogoutParams?, CancellationToken)"/>.
-    /// </summary>
-    Task<HttpResponse> Logout(
-        UserLogoutParams? parameters = null,
         CancellationToken cancellationToken = default
     );
 }

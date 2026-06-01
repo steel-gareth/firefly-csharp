@@ -92,7 +92,7 @@ sealed class JsonDictionary
         }
         if (!_rawData.TryGetValue(key, out JsonElement element))
         {
-            throw new MoreConflictingInvalidDataException($"'{key}' cannot be absent");
+            throw new EmceesProdTesting5InvalidDataException($"'{key}' cannot be absent");
         }
         T deserialized = WrappedJsonSerializer.GetNotNullClass<T>(element, key);
         _deserializedData[key] = deserialized;
@@ -108,7 +108,7 @@ sealed class JsonDictionary
         }
         if (!_rawData.TryGetValue(key, out JsonElement element))
         {
-            throw new MoreConflictingInvalidDataException($"'{key}' cannot be absent");
+            throw new EmceesProdTesting5InvalidDataException($"'{key}' cannot be absent");
         }
         T deserialized = WrappedJsonSerializer.GetNotNullStruct<T>(element, key);
         _deserializedData[key] = deserialized;

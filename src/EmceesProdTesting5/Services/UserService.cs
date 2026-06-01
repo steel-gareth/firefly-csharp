@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EmceesProdTesting5.Core;
 using EmceesProdTesting5.Exceptions;
+using EmceesProdTesting5.Models.About;
 using EmceesProdTesting5.Models.Users;
 
 namespace EmceesProdTesting5.Services;
@@ -19,7 +20,7 @@ public sealed class UserService : IUserService
         get { return _withRawResponse.Value; }
     }
 
-    readonly IMoreConflictingClient _client;
+    readonly IEmceesProdTesting5Client _client;
 
     /// <inheritdoc/>
     public IUserService WithOptions(Func<ClientOptions, ClientOptions> modifier)
@@ -27,7 +28,7 @@ public sealed class UserService : IUserService
         return new UserService(this._client.WithOptions(modifier));
     }
 
-    public UserService(IMoreConflictingClient client)
+    public UserService(IEmceesProdTesting5Client client)
     {
         _client = client;
 
@@ -35,8 +36,8 @@ public sealed class UserService : IUserService
     }
 
     /// <inheritdoc/>
-    public async Task<User> Create(
-        UserCreateParams? parameters = null,
+    public async Task<UserSingle> Create(
+        UserCreateParams parameters,
         CancellationToken cancellationToken = default
     )
     {
@@ -47,7 +48,7 @@ public sealed class UserService : IUserService
     }
 
     /// <inheritdoc/>
-    public async Task<User> Retrieve(
+    public async Task<UserSingle> Retrieve(
         UserRetrieveParams parameters,
         CancellationToken cancellationToken = default
     )
@@ -59,40 +60,49 @@ public sealed class UserService : IUserService
     }
 
     /// <inheritdoc/>
-    public Task<User> Retrieve(
-        string username,
+    public Task<UserSingle> Retrieve(
+        string id,
         UserRetrieveParams? parameters = null,
         CancellationToken cancellationToken = default
     )
     {
         parameters ??= new();
 
-        return this.Retrieve(parameters with { Username = username }, cancellationToken);
+        return this.Retrieve(parameters with { ID = id }, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public Task Update(UserUpdateParams parameters, CancellationToken cancellationToken = default)
-    {
-        return this.WithRawResponse.Update(parameters, cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public async Task Update(
-        string existingUsername,
-        UserUpdateParams? parameters = null,
+    public async Task<UserSingle> Update(
+        UserUpdateParams parameters,
         CancellationToken cancellationToken = default
     )
     {
-        parameters ??= new();
-
-        await this.Update(
-                parameters with
-                {
-                    ExistingUsername = existingUsername,
-                },
-                cancellationToken
-            )
+        using var response = await this
+            .WithRawResponse.Update(parameters, cancellationToken)
             .ConfigureAwait(false);
+        return await response.Deserialize(cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
+    public Task<UserSingle> Update(
+        string id,
+        UserUpdateParams parameters,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return this.Update(parameters with { ID = id }, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<UserListResponse> List(
+        UserListParams? parameters = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        using var response = await this
+            .WithRawResponse.List(parameters, cancellationToken)
+            .ConfigureAwait(false);
+        return await response.Deserialize(cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -103,55 +113,21 @@ public sealed class UserService : IUserService
 
     /// <inheritdoc/>
     public async Task Delete(
-        string username,
+        string id,
         UserDeleteParams? parameters = null,
         CancellationToken cancellationToken = default
     )
     {
         parameters ??= new();
 
-        await this.Delete(parameters with { Username = username }, cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    /// <inheritdoc/>
-    public async Task<User> CreateWithList(
-        UserCreateWithListParams? parameters = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        using var response = await this
-            .WithRawResponse.CreateWithList(parameters, cancellationToken)
-            .ConfigureAwait(false);
-        return await response.Deserialize(cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <inheritdoc/>
-    public async Task<string> Login(
-        UserLoginParams? parameters = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        using var response = await this
-            .WithRawResponse.Login(parameters, cancellationToken)
-            .ConfigureAwait(false);
-        return await response.Deserialize(cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <inheritdoc/>
-    public Task Logout(
-        UserLogoutParams? parameters = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        return this.WithRawResponse.Logout(parameters, cancellationToken);
+        await this.Delete(parameters with { ID = id }, cancellationToken).ConfigureAwait(false);
     }
 }
 
 /// <inheritdoc/>
 public sealed class UserServiceWithRawResponse : IUserServiceWithRawResponse
 {
-    readonly IMoreConflictingClientWithRawResponse _client;
+    readonly IEmceesProdTesting5ClientWithRawResponse _client;
 
     /// <inheritdoc/>
     public IUserServiceWithRawResponse WithOptions(Func<ClientOptions, ClientOptions> modifier)
@@ -159,19 +135,17 @@ public sealed class UserServiceWithRawResponse : IUserServiceWithRawResponse
         return new UserServiceWithRawResponse(this._client.WithOptions(modifier));
     }
 
-    public UserServiceWithRawResponse(IMoreConflictingClientWithRawResponse client)
+    public UserServiceWithRawResponse(IEmceesProdTesting5ClientWithRawResponse client)
     {
         _client = client;
     }
 
     /// <inheritdoc/>
-    public async Task<HttpResponse<User>> Create(
-        UserCreateParams? parameters = null,
+    public async Task<HttpResponse<UserSingle>> Create(
+        UserCreateParams parameters,
         CancellationToken cancellationToken = default
     )
     {
-        parameters ??= new();
-
         HttpRequest<UserCreateParams> request = new()
         {
             Method = HttpMethod.Post,
@@ -182,25 +156,27 @@ public sealed class UserServiceWithRawResponse : IUserServiceWithRawResponse
             response,
             async (token) =>
             {
-                var user = await response.Deserialize<User>(token).ConfigureAwait(false);
+                var userSingle = await response
+                    .Deserialize<UserSingle>(token)
+                    .ConfigureAwait(false);
                 if (this._client.ResponseValidation)
                 {
-                    user.Validate();
+                    userSingle.Validate();
                 }
-                return user;
+                return userSingle;
             }
         );
     }
 
     /// <inheritdoc/>
-    public async Task<HttpResponse<User>> Retrieve(
+    public async Task<HttpResponse<UserSingle>> Retrieve(
         UserRetrieveParams parameters,
         CancellationToken cancellationToken = default
     )
     {
-        if (parameters.Username == null)
+        if (parameters.ID == null)
         {
-            throw new MoreConflictingInvalidDataException("'parameters.Username' cannot be null");
+            throw new EmceesProdTesting5InvalidDataException("'parameters.ID' cannot be null");
         }
 
         HttpRequest<UserRetrieveParams> request = new()
@@ -213,39 +189,39 @@ public sealed class UserServiceWithRawResponse : IUserServiceWithRawResponse
             response,
             async (token) =>
             {
-                var user = await response.Deserialize<User>(token).ConfigureAwait(false);
+                var userSingle = await response
+                    .Deserialize<UserSingle>(token)
+                    .ConfigureAwait(false);
                 if (this._client.ResponseValidation)
                 {
-                    user.Validate();
+                    userSingle.Validate();
                 }
-                return user;
+                return userSingle;
             }
         );
     }
 
     /// <inheritdoc/>
-    public Task<HttpResponse<User>> Retrieve(
-        string username,
+    public Task<HttpResponse<UserSingle>> Retrieve(
+        string id,
         UserRetrieveParams? parameters = null,
         CancellationToken cancellationToken = default
     )
     {
         parameters ??= new();
 
-        return this.Retrieve(parameters with { Username = username }, cancellationToken);
+        return this.Retrieve(parameters with { ID = id }, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public Task<HttpResponse> Update(
+    public async Task<HttpResponse<UserSingle>> Update(
         UserUpdateParams parameters,
         CancellationToken cancellationToken = default
     )
     {
-        if (parameters.ExistingUsername == null)
+        if (parameters.ID == null)
         {
-            throw new MoreConflictingInvalidDataException(
-                "'parameters.ExistingUsername' cannot be null"
-            );
+            throw new EmceesProdTesting5InvalidDataException("'parameters.ID' cannot be null");
         }
 
         HttpRequest<UserUpdateParams> request = new()
@@ -253,24 +229,60 @@ public sealed class UserServiceWithRawResponse : IUserServiceWithRawResponse
             Method = HttpMethod.Put,
             Params = parameters,
         };
-        return this._client.Execute(request, cancellationToken);
+        var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
+        return new(
+            response,
+            async (token) =>
+            {
+                var userSingle = await response
+                    .Deserialize<UserSingle>(token)
+                    .ConfigureAwait(false);
+                if (this._client.ResponseValidation)
+                {
+                    userSingle.Validate();
+                }
+                return userSingle;
+            }
+        );
     }
 
     /// <inheritdoc/>
-    public Task<HttpResponse> Update(
-        string existingUsername,
-        UserUpdateParams? parameters = null,
+    public Task<HttpResponse<UserSingle>> Update(
+        string id,
+        UserUpdateParams parameters,
+        CancellationToken cancellationToken = default
+    )
+    {
+        return this.Update(parameters with { ID = id }, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<HttpResponse<UserListResponse>> List(
+        UserListParams? parameters = null,
         CancellationToken cancellationToken = default
     )
     {
         parameters ??= new();
 
-        return this.Update(
-            parameters with
+        HttpRequest<UserListParams> request = new()
+        {
+            Method = HttpMethod.Get,
+            Params = parameters,
+        };
+        var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
+        return new(
+            response,
+            async (token) =>
             {
-                ExistingUsername = existingUsername,
-            },
-            cancellationToken
+                var users = await response
+                    .Deserialize<UserListResponse>(token)
+                    .ConfigureAwait(false);
+                if (this._client.ResponseValidation)
+                {
+                    users.Validate();
+                }
+                return users;
+            }
         );
     }
 
@@ -280,9 +292,9 @@ public sealed class UserServiceWithRawResponse : IUserServiceWithRawResponse
         CancellationToken cancellationToken = default
     )
     {
-        if (parameters.Username == null)
+        if (parameters.ID == null)
         {
-            throw new MoreConflictingInvalidDataException("'parameters.Username' cannot be null");
+            throw new EmceesProdTesting5InvalidDataException("'parameters.ID' cannot be null");
         }
 
         HttpRequest<UserDeleteParams> request = new()
@@ -295,80 +307,13 @@ public sealed class UserServiceWithRawResponse : IUserServiceWithRawResponse
 
     /// <inheritdoc/>
     public Task<HttpResponse> Delete(
-        string username,
+        string id,
         UserDeleteParams? parameters = null,
         CancellationToken cancellationToken = default
     )
     {
         parameters ??= new();
 
-        return this.Delete(parameters with { Username = username }, cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public async Task<HttpResponse<User>> CreateWithList(
-        UserCreateWithListParams? parameters = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        parameters ??= new();
-
-        HttpRequest<UserCreateWithListParams> request = new()
-        {
-            Method = HttpMethod.Post,
-            Params = parameters,
-        };
-        var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
-        return new(
-            response,
-            async (token) =>
-            {
-                var user = await response.Deserialize<User>(token).ConfigureAwait(false);
-                if (this._client.ResponseValidation)
-                {
-                    user.Validate();
-                }
-                return user;
-            }
-        );
-    }
-
-    /// <inheritdoc/>
-    public async Task<HttpResponse<string>> Login(
-        UserLoginParams? parameters = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        parameters ??= new();
-
-        HttpRequest<UserLoginParams> request = new()
-        {
-            Method = HttpMethod.Get,
-            Params = parameters,
-        };
-        var response = await this._client.Execute(request, cancellationToken).ConfigureAwait(false);
-        return new(
-            response,
-            async (token) =>
-            {
-                return await response.Deserialize<string>(token).ConfigureAwait(false);
-            }
-        );
-    }
-
-    /// <inheritdoc/>
-    public Task<HttpResponse> Logout(
-        UserLogoutParams? parameters = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        parameters ??= new();
-
-        HttpRequest<UserLogoutParams> request = new()
-        {
-            Method = HttpMethod.Get,
-            Params = parameters,
-        };
-        return this._client.Execute(request, cancellationToken);
+        return this.Delete(parameters with { ID = id }, cancellationToken);
     }
 }

@@ -1,11 +1,11 @@
 <Project>
   <PropertyGroup>
-    <Authors>More Conflicting</Authors>
-    <Company>More Conflicting</Company>
+    <Authors>Emcees Prod Testing 5</Authors>
+    <Company>Emcees Prod Testing 5</Company>
     <PackageTags>sdk;api;http;library</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Copyright>Copyright 2026 More Conflicting</Copyright>
-    <PackageProjectUrl>https://www.github.com/stainless-sdks/emcees-prod-testing-5-csharp</PackageProjectUrl>
+    <Copyright>Copyright 2026 Emcees Prod Testing 5</Copyright>
+    <PackageProjectUrl>https://firefly-iii.org</PackageProjectUrl>
     <RepositoryUrl>https://www.github.com/stainless-sdks/emcees-prod-testing-5-csharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 

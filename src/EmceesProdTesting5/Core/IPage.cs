@@ -28,7 +28,7 @@ public interface IPage<T>
     /// <summary>
     /// Returns the page after this one by making another request.
     ///
-    /// <exception cref="MoreConflictingInvalidDataException">
+    /// <exception cref="EmceesProdTesting5InvalidDataException">
     /// Thrown when it's impossible to get the next page. This exception is avoidable by calling
     /// <see cref="HasNext"/> first.
     /// </exception>
@@ -39,7 +39,7 @@ public interface IPage<T>
     /// Validates that the page was constructed with a valid response (based on its own
     /// <c>Validate</c> method).
     ///
-    /// <exception cref="MoreConflictingInvalidDataException">
+    /// <exception cref="EmceesProdTesting5InvalidDataException">
     /// Thrown when the instance does not pass validation.
     /// </exception>
     /// </summary>

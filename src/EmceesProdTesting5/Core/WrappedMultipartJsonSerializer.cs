@@ -17,11 +17,11 @@ sealed class WrappedMultipartJsonSerializer
         {
             deserialized =
                 MultipartJsonSerializer.Deserialize<T>(element, ModelBase.SerializerOptions)
-                ?? throw new MoreConflictingInvalidDataException($"'{name}' cannot be null");
+                ?? throw new EmceesProdTesting5InvalidDataException($"'{name}' cannot be null");
         }
         catch (JsonException e)
         {
-            throw new MoreConflictingInvalidDataException(
+            throw new EmceesProdTesting5InvalidDataException(
                 $"'{name}' must be of type {typeof(T).FullName}",
                 e
             );
@@ -37,11 +37,11 @@ sealed class WrappedMultipartJsonSerializer
         {
             deserialized =
                 MultipartJsonSerializer.Deserialize<T?>(element, ModelBase.SerializerOptions)
-                ?? throw new MoreConflictingInvalidDataException($"'{name}' cannot be null");
+                ?? throw new EmceesProdTesting5InvalidDataException($"'{name}' cannot be null");
         }
         catch (JsonException e)
         {
-            throw new MoreConflictingInvalidDataException(
+            throw new EmceesProdTesting5InvalidDataException(
                 $"'{name}' must be of type {typeof(T).FullName}",
                 e
             );
@@ -62,7 +62,7 @@ sealed class WrappedMultipartJsonSerializer
         }
         catch (JsonException e)
         {
-            throw new MoreConflictingInvalidDataException(
+            throw new EmceesProdTesting5InvalidDataException(
                 $"'{name}' must be of type {typeof(T).FullName}",
                 e
             );
@@ -83,7 +83,7 @@ sealed class WrappedMultipartJsonSerializer
         }
         catch (JsonException e)
         {
-            throw new MoreConflictingInvalidDataException(
+            throw new EmceesProdTesting5InvalidDataException(
                 $"'{name}' must be of type {typeof(T).FullName}",
                 e
             );

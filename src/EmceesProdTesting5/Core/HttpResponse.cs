@@ -69,11 +69,11 @@ public class HttpResponse : IDisposable
                         cts.Token
                     )
                     .ConfigureAwait(false)
-                ?? throw new MoreConflictingInvalidDataException("Response cannot be null");
+                ?? throw new EmceesProdTesting5InvalidDataException("Response cannot be null");
         }
         catch (HttpRequestException e)
         {
-            throw new MoreConflictingIOException("I/O Exception", e);
+            throw new EmceesProdTesting5IOException("I/O Exception", e);
         }
     }
 
