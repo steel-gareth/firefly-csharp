@@ -1,10 +1,10 @@
 <Project>
   <PropertyGroup>
-    <Authors>Emcees Prod Testing 5</Authors>
-    <Company>Emcees Prod Testing 5</Company>
+    <Authors>Firefly</Authors>
+    <Company>Firefly</Company>
     <PackageTags>sdk;api;http;library</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Copyright>Copyright 2026 Emcees Prod Testing 5</Copyright>
+    <Copyright>Copyright 2026 Firefly</Copyright>
     <PackageProjectUrl>https://firefly-iii.org</PackageProjectUrl>
     <RepositoryUrl>https://www.github.com/stainless-sdks/emcees-prod-testing-5-csharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

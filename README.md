@@ -1,6 +1,6 @@
-# Emcees Prod Testing 5 C# API Library
+# Firefly C# API Library
 
-The Emcees Prod Testing 5 C# SDK provides convenient access to the [Emcees Prod Testing 5 REST API](https://firefly-iii.org) from applications written in C#.
+The Firefly C# SDK provides convenient access to the [Firefly REST API](https://firefly-iii.org) from applications written in C#.
 
 It is generated with [Stainless](https://www.stainless.com/).
 
@@ -10,7 +10,7 @@ The REST API documentation can be found on [firefly-iii.org](https://firefly-iii
 
 ```bash
 git clone git@github.com:stainless-sdks/emcees-prod-testing-5-csharp.git
-dotnet add reference emcees-prod-testing-5-csharp/src/EmceesProdTesting5
+dotnet add reference emcees-prod-testing-5-csharp/src/Firefly
 ```
 
 ## Requirements
@@ -23,10 +23,10 @@ See the [`examples`](examples) directory for complete and runnable examples.
 
 ```csharp
 using System;
-using EmceesProdTesting5;
-using EmceesProdTesting5.Models.Autocomplete;
+using Firefly;
+using Firefly.Models.Autocomplete;
 
-EmceesProdTesting5Client client = new();
+FireflyClient client = new();
 
 AutocompleteListAccountsParams parameters = new();
 
@@ -40,28 +40,28 @@ Console.WriteLine(response);
 Configure the client using environment variables:
 
 ```csharp
-using EmceesProdTesting5;
+using Firefly;
 
-// Configured using the EMCEES_PROD_TESTING_5_BEARER_TOKEN and EMCEES_PROD_TESTING_5_BASE_URL environment variables
-EmceesProdTesting5Client client = new();
+// Configured using the FIREFLY_BEARER_TOKEN and FIREFLY_BASE_URL environment variables
+FireflyClient client = new();
 ```
 
 Or manually:
 
 ```csharp
-using EmceesProdTesting5;
+using Firefly;
 
-EmceesProdTesting5Client client = new();
+FireflyClient client = new();
 ```
 
 Or using a combination of the two approaches.
 
 See this table for the available options:
 
-| Property      | Environment variable                 | Required | Default value                        |
-| ------------- | ------------------------------------ | -------- | ------------------------------------ |
-| `BearerToken` | `EMCEES_PROD_TESTING_5_BEARER_TOKEN` | false    | -                                    |
-| `BaseUrl`     | `EMCEES_PROD_TESTING_5_BASE_URL`     | true     | `"https://demo.firefly-iii.org/api"` |
+| Property      | Environment variable   | Required | Default value                        |
+| ------------- | ---------------------- | -------- | ------------------------------------ |
+| `BearerToken` | `FIREFLY_BEARER_TOKEN` | false    | -                                    |
+| `BaseUrl`     | `FIREFLY_BASE_URL`     | true     | `"https://demo.firefly-iii.org/api"` |
 
 ### Modifying configuration
 
@@ -89,7 +89,7 @@ The `WithOptions` method does not affect the original client or service.
 
 ## Requests and responses
 
-To send a request to the Emcees Prod Testing 5 API, build an instance of some `Params` class and pass it to the corresponding client method. When the response is received, it will be deserialized into an instance of a C# class.
+To send a request to the Firefly API, build an instance of some `Params` class and pass it to the corresponding client method. When the response is received, it will be deserialized into an instance of a C# class.
 
 For example, `client.Autocomplete.ListAccounts` should be called with an instance of `AutocompleteListAccountsParams`, and it will return an instance of `Task<List<AutocompleteListAccountsResponse>>`.
 
@@ -101,7 +101,7 @@ These methods return `HttpResponse`:
 
 ```csharp
 using System;
-using EmceesProdTesting5.Models.Data.Export;
+using Firefly.Models.Data.Export;
 
 ExportExportAccountsParams parameters = new();
 
@@ -140,7 +140,7 @@ For non-streaming responses, you can deserialize the response into an instance o
 ```csharp
 using System;
 using System.Collections.Generic;
-using EmceesProdTesting5.Models.Autocomplete;
+using Firefly.Models.Autocomplete;
 
 var response = await client.WithRawResponse.Autocomplete.ListAccounts();
 List<AutocompleteListAccountsResponse> deserialized = await response.Deserialize();
@@ -151,26 +151,26 @@ Console.WriteLine(deserialized);
 
 The SDK throws custom unchecked exception types:
 
-- `EmceesProdTesting5ApiException`: Base class for API errors. See this table for which exception subclass is thrown for each HTTP status code:
+- `FireflyApiException`: Base class for API errors. See this table for which exception subclass is thrown for each HTTP status code:
 
-| Status | Exception                                         |
-| ------ | ------------------------------------------------- |
-| 400    | `EmceesProdTesting5BadRequestException`           |
-| 401    | `EmceesProdTesting5UnauthorizedException`         |
-| 403    | `EmceesProdTesting5ForbiddenException`            |
-| 404    | `EmceesProdTesting5NotFoundException`             |
-| 422    | `EmceesProdTesting5UnprocessableEntityException`  |
-| 429    | `EmceesProdTesting5RateLimitException`            |
-| 5xx    | `EmceesProdTesting55xxException`                  |
-| others | `EmceesProdTesting5UnexpectedStatusCodeException` |
+| Status | Exception                              |
+| ------ | -------------------------------------- |
+| 400    | `FireflyBadRequestException`           |
+| 401    | `FireflyUnauthorizedException`         |
+| 403    | `FireflyForbiddenException`            |
+| 404    | `FireflyNotFoundException`             |
+| 422    | `FireflyUnprocessableEntityException`  |
+| 429    | `FireflyRateLimitException`            |
+| 5xx    | `Firefly5xxException`                  |
+| others | `FireflyUnexpectedStatusCodeException` |
 
-Additionally, all 4xx errors inherit from `EmceesProdTesting54xxException`.
+Additionally, all 4xx errors inherit from `Firefly4xxException`.
 
-- `EmceesProdTesting5IOException`: I/O networking errors.
+- `FireflyIOException`: I/O networking errors.
 
-- `EmceesProdTesting5InvalidDataException`: Failure to interpret successfully parsed data. For example, when accessing a property that's supposed to be required, but the API unexpectedly omitted it from the response.
+- `FireflyInvalidDataException`: Failure to interpret successfully parsed data. For example, when accessing a property that's supposed to be required, but the API unexpectedly omitted it from the response.
 
-- `EmceesProdTesting5Exception`: Base class for all exceptions.
+- `FireflyException`: Base class for all exceptions.
 
 ## Network options
 
@@ -191,9 +191,9 @@ The API may also explicitly instruct the SDK to retry or not retry a request.
 To set a custom number of retries, configure the client using the `MaxRetries` method:
 
 ```csharp
-using EmceesProdTesting5;
+using Firefly;
 
-EmceesProdTesting5Client client = new() { MaxRetries = 3 };
+FireflyClient client = new() { MaxRetries = 3 };
 ```
 
 Or configure a single method call using [`WithOptions`](#modifying-configuration):
@@ -218,9 +218,9 @@ To set a custom timeout, configure the client using the `Timeout` option:
 
 ```csharp
 using System;
-using EmceesProdTesting5;
+using Firefly;
 
-EmceesProdTesting5Client client = new() { Timeout = TimeSpan.FromSeconds(42) };
+FireflyClient client = new() { Timeout = TimeSpan.FromSeconds(42) };
 ```
 
 Or configure a single method call using [`WithOptions`](#modifying-configuration):
@@ -244,7 +244,7 @@ To route requests through a proxy, configure your client with a custom [`HttpCli
 ```csharp
 using System.Net;
 using System.Net.Http;
-using EmceesProdTesting5;
+using Firefly;
 
 var httpClient = new HttpClient
 (
@@ -254,7 +254,7 @@ var httpClient = new HttpClient
     }
 );
 
-EmceesProdTesting5Client client = new() { HttpClient = httpClient };
+FireflyClient client = new() { HttpClient = httpClient };
 ```
 
 ### Environments
@@ -262,13 +262,10 @@ EmceesProdTesting5Client client = new() { HttpClient = httpClient };
 The SDK sends requests to the production environment by default. To send requests to a different environment, configure the client like so:
 
 ```csharp
-using EmceesProdTesting5;
-using EmceesProdTesting5.Core;
+using Firefly;
+using Firefly.Core;
 
-EmceesProdTesting5Client client = new()
-{
-    BaseUrl = EnvironmentUrl.Environment1
-};
+FireflyClient client = new() { BaseUrl = EnvironmentUrl.Environment1 };
 ```
 
 ## Undocumented API functionality
@@ -282,7 +279,7 @@ To set undocumented parameters, a constructor exists that accepts dictionaries f
 ```csharp
 using System.Collections.Generic;
 using System.Text.Json;
-using EmceesProdTesting5.Models.Autocomplete;
+using Firefly.Models.Autocomplete;
 
 AutocompleteListAccountsParams parameters = new
 (
@@ -310,7 +307,7 @@ This can also be used to set a documented parameter to an undocumented or not ye
 ```csharp
 using System.Collections.Generic;
 using System.Text.Json;
-using EmceesProdTesting5.Models.Chart.Account;
+using Firefly.Models.Chart.Account;
 
 var parameters = AccountRetrieveOverviewParams.FromRawUnchecked
 (
@@ -346,7 +343,7 @@ if (response.RawData.TryGetValue("my_custom_key", out JsonElement value))
 
 In rare cases, the API may return a response that doesn't match the expected type. For example, the SDK may expect a property to contain a `string`, but the API could return something else.
 
-By default, the SDK will not throw an exception in this case. It will throw `EmceesProdTesting5InvalidDataException` only if you directly access the property.
+By default, the SDK will not throw an exception in this case. It will throw `FireflyInvalidDataException` only if you directly access the property.
 
 If you would prefer to check that the response is completely well-typed upfront, then either call `Validate`:
 
@@ -358,9 +355,9 @@ accountSingle.Validate();
 Or configure the client using the `ResponseValidation` option:
 
 ```csharp
-using EmceesProdTesting5;
+using Firefly;
 
-EmceesProdTesting5Client client = new() { ResponseValidation = true };
+FireflyClient client = new() { ResponseValidation = true };
 ```
 
 Or configure a single method call using [`WithOptions`](#modifying-configuration):
