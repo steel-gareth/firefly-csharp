@@ -6,7 +6,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Copyright>Copyright 2026 Firefly</Copyright>
     <PackageProjectUrl>https://firefly-iii.org</PackageProjectUrl>
-    <RepositoryUrl>https://www.github.com/stainless-sdks/emcees-prod-testing-5-csharp</RepositoryUrl>
+    <RepositoryUrl>https://www.github.com/steel-gareth/firefly-csharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
     <!-- Documentation-->
