@@ -3,7 +3,7 @@
     <!-- Metadata -->
     <AssemblyTitle>Firefly C#</AssemblyTitle>
     <AssemblyName>Firefly</AssemblyName>
-    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionPrefix>0.1.1</VersionPrefix>
     <Description>The official .NET library for the Firefly API.</Description>
     <OutputType>Library</OutputType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
