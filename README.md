@@ -9,8 +9,8 @@ The REST API documentation can be found on [firefly-iii.org](https://firefly-iii
 ## Installation
 
 ```bash
-git clone git@github.com:stainless-sdks/emcees-prod-testing-5-csharp.git
-dotnet add reference emcees-prod-testing-5-csharp/src/Firefly
+git clone git@github.com:steel-gareth/firefly-csharp.git
+dotnet add reference firefly-csharp/src/Firefly
 ```
 
 ## Requirements
@@ -383,4 +383,4 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/emcees-prod-testing-5-csharp/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/steel-gareth/firefly-csharp/issues) with questions, bugs, or suggestions.
