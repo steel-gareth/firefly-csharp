@@ -32,7 +32,7 @@ public record class ExchangeRateCreateByDateParams : ParamsBase
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNotNullStruct<JsonElement>("date");
+            return this._rawBodyData.GetNotAbsentElement("date");
         }
         init { this._rawBodyData.Set("date", value); }
     }

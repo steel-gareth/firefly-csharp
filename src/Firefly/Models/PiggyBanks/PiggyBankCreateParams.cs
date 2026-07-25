@@ -32,7 +32,7 @@ public record class PiggyBankCreateParams : ParamsBase
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNotNullStruct<JsonElement>("account_id");
+            return this._rawBodyData.GetNotAbsentElement("account_id");
         }
         init { this._rawBodyData.Set("account_id", value); }
     }

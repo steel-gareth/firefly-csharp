@@ -108,7 +108,7 @@ public sealed record class Attributes : JsonModel
         get
         {
             this._rawData.Freeze();
-            return this._rawData.GetNotNullStruct<JsonElement>("delivery");
+            return this._rawData.GetNotAbsentElement("delivery");
         }
         init { this._rawData.Set("delivery", value); }
     }
@@ -118,7 +118,7 @@ public sealed record class Attributes : JsonModel
         get
         {
             this._rawData.Freeze();
-            return this._rawData.GetNotNullStruct<JsonElement>("response");
+            return this._rawData.GetNotAbsentElement("response");
         }
         init { this._rawData.Set("response", value); }
     }
@@ -141,7 +141,7 @@ public sealed record class Attributes : JsonModel
         get
         {
             this._rawData.Freeze();
-            return this._rawData.GetNotNullStruct<JsonElement>("trigger");
+            return this._rawData.GetNotAbsentElement("trigger");
         }
         init { this._rawData.Set("trigger", value); }
     }
