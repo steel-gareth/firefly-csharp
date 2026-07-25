@@ -316,7 +316,7 @@ public sealed record class PiggyBankUpdateParamsAccount : JsonModel
         get
         {
             this._rawData.Freeze();
-            return this._rawData.GetNotNullStruct<JsonElement>("id");
+            return this._rawData.GetNotAbsentElement("id");
         }
         init { this._rawData.Set("id", value); }
     }

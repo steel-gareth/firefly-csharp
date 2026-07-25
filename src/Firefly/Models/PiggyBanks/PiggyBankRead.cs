@@ -108,7 +108,7 @@ public sealed record class PiggyBankReadAttributes : JsonModel
         get
         {
             this._rawData.Freeze();
-            return this._rawData.GetNotNullStruct<JsonElement>("account_id");
+            return this._rawData.GetNotAbsentElement("account_id");
         }
         init { this._rawData.Set("account_id", value); }
     }

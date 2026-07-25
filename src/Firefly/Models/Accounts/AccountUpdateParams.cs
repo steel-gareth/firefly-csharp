@@ -42,7 +42,7 @@ public record class AccountUpdateParams : ParamsBase
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNotNullStruct<JsonElement>("type");
+            return this._rawBodyData.GetNotAbsentElement("type");
         }
         init { this._rawBodyData.Set("type", value); }
     }
