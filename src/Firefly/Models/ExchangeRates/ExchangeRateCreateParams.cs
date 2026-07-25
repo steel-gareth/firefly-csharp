@@ -56,7 +56,7 @@ public record class ExchangeRateCreateParams : ParamsBase
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNotNullStruct<JsonElement>("rates");
+            return this._rawBodyData.GetNotAbsentElement("rates");
         }
         init { this._rawBodyData.Set("rates", value); }
     }

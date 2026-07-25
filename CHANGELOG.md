@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0 (2026-07-25)
+
+Full Changelog: [v0.1.1...v0.2.0](https://github.com/steel-gareth/firefly-csharp/compare/v0.1.1...v0.2.0)
+
+### Features
+
+* **stlc:** configurable CI runner and private-production-repo support in workflow templates ([0fcde2c](https://github.com/steel-gareth/firefly-csharp/commit/0fcde2c53742e8b5ae5b4529712aa11e5a716571))
+
+
+### Bug Fixes
+
+* **client:** tolerate JSON null in required untyped fields and prefer more specific union variants ([58b488d](https://github.com/steel-gareth/firefly-csharp/commit/58b488d81195547376a4108f83640bd04272bee2))
+
 ## 0.1.1 (2026-06-02)
 
 Full Changelog: [v0.1.0...v0.1.1](https://github.com/steel-gareth/firefly-csharp/compare/v0.1.0...v0.1.1)

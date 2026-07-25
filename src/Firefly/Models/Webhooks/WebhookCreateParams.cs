@@ -31,7 +31,7 @@ public record class WebhookCreateParams : ParamsBase
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNotNullStruct<JsonElement>("delivery");
+            return this._rawBodyData.GetNotAbsentElement("delivery");
         }
         init { this._rawBodyData.Set("delivery", value); }
     }
@@ -41,7 +41,7 @@ public record class WebhookCreateParams : ParamsBase
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNotNullStruct<JsonElement>("response");
+            return this._rawBodyData.GetNotAbsentElement("response");
         }
         init { this._rawBodyData.Set("response", value); }
     }
@@ -64,7 +64,7 @@ public record class WebhookCreateParams : ParamsBase
         get
         {
             this._rawBodyData.Freeze();
-            return this._rawBodyData.GetNotNullStruct<JsonElement>("trigger");
+            return this._rawBodyData.GetNotAbsentElement("trigger");
         }
         init { this._rawBodyData.Set("trigger", value); }
     }
